@@ -1,15 +1,18 @@
+// ----------------------------
+// Countdown Timer
+// ----------------------------
 function initCountdown() {
-    const countDownDate = new Date(eventStart).getTime(); // Use the global variable
+    if (typeof eventStart === "undefined") return;
 
-    setInterval(() => {
-        const now = new Date().getTime();
+    const countDownDate = new Date(eventStart).getTime();
+
+    const countdownTimer = setInterval(() => {
+        const now = Date.now();
         const distance = countDownDate - now;
 
-        if (distance < 0) {
-            document.getElementById("days").innerText = "00";
-            document.getElementById("hours").innerText = "00";
-            document.getElementById("minutes").innerText = "00";
-            document.getElementById("seconds").innerText = "00";
+        if (distance <= 0) {
+            clearInterval(countdownTimer);
+            updateCountdown(0, 0, 0, 0);
             return;
         }
 
@@ -18,36 +21,37 @@ function initCountdown() {
         const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-        document.getElementById("days").innerText = days.toString().padStart(2, '0');
-        document.getElementById("hours").innerText = hours.toString().padStart(2, '0');
-        document.getElementById("minutes").innerText = minutes.toString().padStart(2, '0');
-        document.getElementById("seconds").innerText = seconds.toString().padStart(2, '0');
+        updateCountdown(days, hours, minutes, seconds);
     }, 1000);
 }
 
-document.addEventListener('DOMContentLoaded', initCountdown);
+function updateCountdown(days, hours, minutes, seconds) {
+    document.getElementById("days").innerText = days.toString().padStart(2, "0");
+    document.getElementById("hours").innerText = hours.toString().padStart(2, "0");
+    document.getElementById("minutes").innerText = minutes.toString().padStart(2, "0");
+    document.getElementById("seconds").innerText = seconds.toString().padStart(2, "0");
+}
 
 
-// Smooth scrolling for navigation links
+// ----------------------------
+// Smooth Scrolling
+// ----------------------------
 function initSmoothScrolling() {
-    const navbar = document.querySelector('.navbar');
-    const navbarHeight = navbar.offsetHeight;
+    const navbar = document.querySelector(".navbar");
+    const navbarHeight = navbar ? navbar.offsetHeight : 0;
 
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
+        anchor.addEventListener("click", e => {
             e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
+            const target = document.querySelector(anchor.getAttribute("href"));
             if (target) {
-                const targetPosition = target.getBoundingClientRect().top + window.scrollY;
-                const offsetPosition = targetPosition - navbarHeight;
-
-                window.scrollTo({
-                    top: offsetPosition,
-                    behavior: 'smooth'
-                });
+                const offset = target.offsetTop - navbarHeight;
+                window.scrollTo({ top: offset, behavior: "smooth" });
 
                 // Close mobile menu if open
-                const offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('offcanvasNavbar'));
+                const offcanvas = bootstrap.Offcanvas.getInstance(
+                    document.getElementById("offcanvasNavbar")
+                );
                 if (offcanvas) offcanvas.hide();
             }
         });
@@ -55,55 +59,65 @@ function initSmoothScrolling() {
 }
 
 
-// Add active class to navigation links based on scroll position
+// ----------------------------
+// Scroll Spy
+// ----------------------------
 function initScrollSpy() {
-    const sections = document.querySelectorAll('section[id]');
-    const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
-    
+    const sections = document.querySelectorAll("section[id]");
+    const navLinks = document.querySelectorAll(".nav-link[href^='#']");
+
     function setActiveLink() {
-        let current = '';
-        
+        let current = "";
+
         sections.forEach(section => {
-            const sectionTop = section.offsetTop - 100;
-            if (window.pageYOffset >= sectionTop) {
-                current = section.getAttribute('id');
+            const sectionTop = section.offsetTop - 120; // adjust offset
+            if (window.scrollY >= sectionTop) {
+                current = section.id;
             }
         });
-        
+
         navLinks.forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('href') === `#${current}`) {
-                link.classList.add('active');
-            }
+            link.classList.toggle("active", link.getAttribute("href") === `#${current}`);
         });
     }
-    
-    window.addEventListener('scroll', setActiveLink);
-    setActiveLink(); // Call once on load
+
+    window.addEventListener("scroll", setActiveLink);
+    setActiveLink();
 }
 
-// Animate elements when they come into view
+
+// ----------------------------
+// Scroll Animations
+// ----------------------------
 function initScrollAnimations() {
-    const animatedElements = document.querySelectorAll('.feature-card, .project-card, .stat-box');
-    
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
-    
-    const observer = new IntersectionObserver((entries) => {
+    const animatedElements = document.querySelectorAll(
+        ".feature-card, .project-card, .stat-box"
+    );
+
+    const observer = new IntersectionObserver(entries => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
+                entry.target.style.opacity = "1";
+                entry.target.style.transform = "translateY(0)";
             }
         });
-    }, observerOptions);
-    
+    }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
+
     animatedElements.forEach(el => {
-        el.style.opacity = '0';
-        el.style.transform = 'translateY(30px)';
-        el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        el.style.opacity = "0";
+        el.style.transform = "translateY(30px)";
+        el.style.transition = "opacity 0.6s ease, transform 0.6s ease";
         observer.observe(el);
     });
-}   
+}
+
+
+// ----------------------------
+// Init All
+// ----------------------------
+document.addEventListener("DOMContentLoaded", () => {
+    initCountdown();
+    initSmoothScrolling();
+    initScrollSpy();
+    initScrollAnimations();
+});

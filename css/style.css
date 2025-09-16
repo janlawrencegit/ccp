@@ -20,6 +20,11 @@ html {
    color: #6c757d; 
 }
 
+.navbar .nav-link.active {
+    color: #6c757d !important; /* faded gray */
+    font-weight: 600;          /* optional, to highlight a bit */
+}
+
 .nav-link {
   text-transform: uppercase;
   font: bold 0.9rem YAD0vgIBnsw_0, -apple-system, BlinkMacSystemFont, sans-serif;
@@ -268,7 +273,7 @@ html {
 .pulse {
     animation: pulse 2s infinite;
 }
-    
+
 @keyframes pulse {
     0% { transform: scale(1); }
     50% { transform: scale(1.05); }
