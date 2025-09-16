@@ -16,18 +16,24 @@ $eventSql = "SELECT name, start_date
              WHERE status='active' AND start_date > NOW() 
              ORDER BY start_date ASC 
              LIMIT 1";
+
 $eventResult = $conn->query($eventSql);
 
 if ($eventResult && $eventResult->num_rows > 0) {
     $event = $eventResult->fetch_assoc();
-    $eventStart = $event['start_date'];
     $eventName = $event['name'];
+    $eventStart = $event['start_date'];
+    $hasEvent = true;
 } else {
-    $eventStart = date('Y-m-d H:i:s', strtotime('+73 days')); 
-    $eventName = "Test Event in 73 Days";
+    // No active upcoming events
+    $eventName = "No upcoming events";
+    $eventStart = null;
+    $hasEvent = false;
 }
 
-$eventStartJS = date('c', strtotime($eventStart));
+// Pass to JavaScript
+$eventStartJS = $eventStart ? date('c', strtotime($eventStart)) : '';
+
 ?>
 
 <!DOCTYPE html>
@@ -205,13 +211,16 @@ $eventStartJS = date('c', strtotime($eventStart));
     <p class="lead mb-5">To avail your raffle ticket, please contact any authorized solicitor!</p>
     <div class="row justify-content-center mb-5">
       <div class="col-md-6">
-        <a href="register.php"><img src="images/ticket.png" alt="Buy Raffle Ticket" class="ticket-img"></a>
+        <a class="ticket-link" href="#">
+    <img src="images/ticket.png" class="ticket-img zoom-effect" alt="Raffle Ticket">
+</a>
+
         <p class="mt-3 fs-5">Click the ticket to register</p>
       </div>
     </div>
     <div class="row justify-content-center mb-5">
       <div class="col-md-6">
-        <a href="register.php"><img src="images/box.png" style="max-width: 20%; height: auto;" alt="Raffle Entry"></a>
+        <a href="register.php"><img src="images/box.png" class = "ticket-img zoom-effect" style="max-width: 20%; height: auto;" alt="Raffle Entry"></a>
       </div>
     </div>
     <div class="raffle-message mt-4">
@@ -223,7 +232,7 @@ $eventStartJS = date('c', strtotime($eventStart));
 
 <section class="py-5 bg-light text-dark">
     <div class="container text-center">
-        <img src="images/ccplogo.png" alt="CCP Logo" class="img-fluid mb-4 zoom-effect" style="max-width: 400px;">
+        <img src="images/ccplogo.png" alt="CCP Logo" class="img-fluid mb-4" style="max-width: 400px;">
         <h2 class="pulse">“Once a CCPian, always a CCPian”</h2>
     </div>
 </section>
@@ -234,8 +243,8 @@ $eventStartJS = date('c', strtotime($eventStart));
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    const eventStart = "<?= $eventStartJS ?>";
+const targetDate = "<?= $eventStartJS ?>";
 </script>
-<script src="js/script.js"></script>
+<script src="js/countdown.js"></script>
 </body>
 </html>
