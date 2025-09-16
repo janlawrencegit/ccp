@@ -1,4 +1,6 @@
 <?php 
+
+// Za3Fu8TbiO
 session_start();
 require 'config.php';
 
